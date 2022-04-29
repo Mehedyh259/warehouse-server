@@ -21,7 +21,7 @@ const run = async () => {
         console.log('connected db');
         const medicineCollection = client.db('medicines').collection('products');
 
-        // get all products of database
+        // get all products or limited products of database
         app.get('/products', async (req, res) => {
             const limit = Number(req.query.limit);
             const cursor = medicineCollection.find({});
@@ -43,6 +43,21 @@ const run = async () => {
             res.send(product);
 
         });
+
+        // update a product quantity by id
+        app.put('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const newQuantity = req.body;
+            const search = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    quantity: newQuantity.quantity
+                }
+            };
+            const result = await medicineCollection.updateOne(search, updatedDoc, options);
+            res.send(result);
+        })
 
         // delete a product by id
         app.delete('/product/:id', async (req, res) => {
