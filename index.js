@@ -27,14 +27,22 @@ const run = async () => {
             const products = await cursor.toArray();
             res.send(products);
         });
-
+        // get a single product by id
         app.get('/product/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const product = await medicineCollection.findOne(query);
             res.send(product);
 
-        })
+        });
+
+        // delete a product by id
+        app.delete('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await medicineCollection.deleteOne(query);
+            res.send(result);
+        });
 
     } finally {
 
