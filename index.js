@@ -23,9 +23,17 @@ const run = async () => {
 
         // get all products of database
         app.get('/products', async (req, res) => {
+            const limit = Number(req.query.limit);
             const cursor = medicineCollection.find({});
-            const products = await cursor.toArray();
-            res.send(products);
+
+            if (limit) {
+                const products = await cursor.limit(limit).toArray();
+                res.send(products);
+            } else {
+                const products = await cursor.toArray();
+                res.send(products);
+            }
+
         });
         // get a single product by id
         app.get('/product/:id', async (req, res) => {
