@@ -41,8 +41,14 @@ const run = async () => {
             const query = { _id: ObjectId(id) };
             const product = await medicineCollection.findOne(query);
             res.send(product);
-
         });
+
+        // post api for adding new product
+        app.post('/product', async (req, res) => {
+            const newProduct = req.body;
+            const result = await medicineCollection.insertOne(newProduct);
+            res.send(result);
+        })
 
         // update a product quantity by id
         app.put('/product/:id', async (req, res) => {
