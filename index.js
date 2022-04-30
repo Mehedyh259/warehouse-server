@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
@@ -20,6 +21,14 @@ const run = async () => {
         await client.connect();
         console.log('connected db');
         const medicineCollection = client.db('medicines').collection('products');
+
+        // genarate access token when login
+        app.post('/login', async (req, res) => {
+            const user = req.body;
+            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
+            res.send({ accessToken });
+        });
+
 
         // get all products or limited products of database
         app.get('/products', async (req, res) => {
