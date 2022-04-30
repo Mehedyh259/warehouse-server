@@ -43,6 +43,15 @@ const run = async () => {
             res.send(product);
         });
 
+        // get products by email 
+        app.get('/product', async (req, res) => {
+            const queryEmail = req.query.email;
+            const query = { email: queryEmail };
+            const cursor = medicineCollection.find(query);
+            const products = await cursor.toArray();
+            res.send(products);
+        })
+
         // post api for adding new product
         app.post('/product', async (req, res) => {
             const newProduct = req.body;
