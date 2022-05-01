@@ -14,23 +14,23 @@ app.use(express.json());
 
 
 
-// verify access token {getting error so not using}
-// const verifyToken = (req, res, next) => {
-//     const token = req?.headers?.authorization;
-//     if (!token) {
-//         return res.status(401).send({ message: "Unauthorized access" })
-//     }
-//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-//         if (err) {
-//             return res.status(403).send({ message: "Forbidden Access !" })
-//         }
+// verify access token {
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    const accessSecret = process.env.ACCESS_TOKEN_SECRET;
 
-//         req.decoded = decoded;
-//         next();
-
-//     })
-
-// }
+    if (!authHeader) {
+        return res.status(401).send({ message: 'Unauthorized access' });
+    }
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, accessSecret, (err, decoded) => {
+        if (err) {
+            return res.status(403).send({ message: 'Access Forbidden' });
+        }
+        req.decoded = decoded;
+        next();
+    });
+}
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@medicines.eb4dx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
@@ -79,29 +79,16 @@ const run = async () => {
         });
 
         // get products by email 
-        app.get('/product', async (req, res) => {
-            const queryEmail = req.query?.email;
-            const token = req?.headers?.authorization;
-            const accessSecret = process.env.ACCESS_TOKEN_SECRET;
-
-            if (!token) {
-                return res.status(401).send({ message: "Unauthorized access" })
+        app.get('/product', verifyToken, async (req, res) => {
+            const decodedEmail = req.decoded.email;
+            const email = req.query.email;
+            if (email === decodedEmail) {
+                const cursor = medicineCollection.find({ email: email });
+                const products = await cursor.toArray();
+                res.send(products)
+            } else {
+                res.status(403).send({ message: 'Forbidded access' })
             }
-
-            jwt.verify(token, accessSecret, async (err, decoded) => {
-                if (decoded.email === queryEmail) {
-                    console.log("matched email");
-                    const query = { email: queryEmail };
-                    const cursor = medicineCollection.find(query);
-                    const products = await cursor.toArray();
-                    res.send(products);
-                } else {
-                    res.status(403).send({ message: "Forbidden Access" })
-
-                }
-            });
-
-
         })
 
         // get all product count for pagination
