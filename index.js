@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-require('dotenv').config();
+
 
 const port = process.env.PORT || 5000;
 const app = express();
@@ -127,7 +128,7 @@ run().catch(console.dir);
 // server root url
 
 app.get('/', async (req, res) => {
-    res.send('Server is running');
+    res.send('Mediqas Server is running');
 });
 
 
