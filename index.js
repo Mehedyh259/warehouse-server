@@ -11,6 +11,7 @@ const app = express();
 // middleware
 app.use(cors());
 app.use(express.json());
+app.options('*', cors())
 
 
 // verify access token
