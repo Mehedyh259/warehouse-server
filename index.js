@@ -84,6 +84,10 @@ const run = async () => {
             const token = req?.headers?.authorization;
             const accessSecret = process.env.ACCESS_TOKEN_SECRET;
 
+            if (!token) {
+                return res.status(401).send({ message: "Unauthorized access" })
+            }
+
             jwt.verify(token, accessSecret, async (err, decoded) => {
                 if (decoded.email === queryEmail) {
                     console.log("matched email");
