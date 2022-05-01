@@ -51,10 +51,15 @@ const run = async () => {
 
         // get all products or limited products of database
         app.get('/products', async (req, res) => {
-            const limit = Number(req.query.limit);
-            const cursor = medicineCollection.find({});
+            const limit = Number(req.query?.limit);
+            const page = Number(req.query?.page);
 
-            if (limit) {
+            const cursor = medicineCollection.find({});
+            if (limit && page >= 0) {
+                products = await cursor.skip(page * limit).limit(limit).toArray();
+                res.send(products);
+            }
+            else if (limit) {
                 const products = await cursor.limit(limit).toArray();
                 res.send(products);
             } else {
@@ -83,8 +88,14 @@ const run = async () => {
             } else {
                 res.status(403).send({ message: "Forbidden Access" })
             }
-
         })
+
+        // get all product count for pagination
+        app.get('/productsCount', async (req, res) => {
+            const productsCount = await medicineCollection.estimatedDocumentCount();
+            res.send({ productsCount });
+        });
+
 
         // post api for adding new product
         app.post('/product', async (req, res) => {
