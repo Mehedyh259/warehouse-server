@@ -96,12 +96,13 @@ const run = async () => {
         // update a product quantity by id
         app.put('/product/:id', async (req, res) => {
             const id = req.params.id;
-            const newQuantity = req.body;
+            const newUpdate = req.body;
             const search = { _id: ObjectId(id) };
             const options = { upsert: true };
             const updatedDoc = {
                 $set: {
-                    quantity: newQuantity.quantity
+                    quantity: newUpdate.quantity,
+                    sold: newUpdate.sold
                 }
             };
             const result = await medicineCollection.updateOne(search, updatedDoc, options);
