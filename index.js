@@ -14,21 +14,23 @@ app.use(express.json());
 
 
 
-// verify access token
-const verifyToken = (req, res, next) => {
-    const token = req?.headers?.authorization;
-    if (!token) {
-        return res.status(401).send({ message: "Unauthorized access" })
-    }
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if (err) {
-            return res.status(403).send({ message: "Forbidden Access !" })
-        }
-        req.decoded = decoded;
-        next();
-    })
+// verify access token {getting error so not using}
+// const verifyToken = (req, res, next) => {
+//     const token = req?.headers?.authorization;
+//     if (!token) {
+//         return res.status(401).send({ message: "Unauthorized access" })
+//     }
+//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+//         if (err) {
+//             return res.status(403).send({ message: "Forbidden Access !" })
+//         }
 
-}
+//         req.decoded = decoded;
+//         next();
+
+//     })
+
+// }
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@medicines.eb4dx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
@@ -44,7 +46,7 @@ const run = async () => {
         // genarate access token when login
         app.post('/login', async (req, res) => {
             const user = req.body;
-            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
+            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
             res.send({ accessToken });
         });
 
@@ -77,17 +79,25 @@ const run = async () => {
         });
 
         // get products by email 
-        app.get('/product', verifyToken, async (req, res) => {
-            const decoded = req.decoded?.email;
+        app.get('/product', async (req, res) => {
             const queryEmail = req.query?.email;
-            if (decoded === queryEmail) {
-                const query = { email: queryEmail };
-                const cursor = medicineCollection.find(query);
-                const products = await cursor.toArray();
-                res.send(products);
-            } else {
-                res.status(403).send({ message: "Forbidden Access" })
-            }
+            const token = req?.headers?.authorization;
+            const accessSecret = process.env.ACCESS_TOKEN_SECRET;
+
+            jwt.verify(token, accessSecret, async (err, decoded) => {
+                if (decoded.email === queryEmail) {
+                    console.log("matched email");
+                    const query = { email: queryEmail };
+                    const cursor = medicineCollection.find(query);
+                    const products = await cursor.toArray();
+                    res.send(products);
+                } else {
+                    res.status(403).send({ message: "Forbidden Access" })
+
+                }
+            });
+
+
         })
 
         // get all product count for pagination
