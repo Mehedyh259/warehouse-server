@@ -85,7 +85,7 @@ const run = async () => {
             if (email === decodedEmail) {
                 const cursor = medicineCollection.find({ email: email });
                 const products = await cursor.toArray();
-                res.send(products)
+                res.send(products);
             } else {
                 res.status(403).send({ message: 'Forbidded access' })
             }
