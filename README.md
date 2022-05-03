@@ -1,6 +1,6 @@
 # Mediqas server
 
-###
+### this is the server of my mediqas project. this server controls the connection between front end and database and other importent features.
 
 ## Live Website Link [Mediqas](https://medicine-inventory-76ade.web.app/)
 ## Website Server Link [Mediqas Server](https://tranquil-island-04777.herokuapp.com/)
