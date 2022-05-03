@@ -18,7 +18,6 @@ app.use(express.json());
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
     const accessSecret = process.env.ACCESS_TOKEN_SECRET;
-
     if (!authHeader) {
         return res.status(401).send({ message: 'Unauthorized access' });
     }
@@ -81,13 +80,16 @@ const run = async () => {
         // get products by email 
         app.get('/product', verifyToken, async (req, res) => {
             const decodedEmail = req.decoded.email;
-            const email = req.query.email;
-            if (email === decodedEmail) {
-                const cursor = medicineCollection.find({ email: email });
-                const products = await cursor.toArray();
-                res.send(products);
-            } else {
-                res.status(403).send({ message: 'Forbidded access' })
+            const email = req?.query?.email;
+
+            if (email) {
+                if (email === decodedEmail) {
+                    const cursor = medicineCollection.find({ email: email });
+                    const products = await cursor.toArray();
+                    res.send(products);
+                } else {
+                    res.status(403).send({ message: 'Forbidded access' })
+                }
             }
         })
 
